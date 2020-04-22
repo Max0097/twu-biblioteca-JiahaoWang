@@ -1,0 +1,49 @@
+package com.dkfja.dfe;
+public class Book {
+    String name;
+    String author;
+    int year;
+
+    boolean avaliable;
+
+    public Book(String name, String author, int year) {
+        this.name = name;
+        this.author = author;
+        this.year = year;
+        this.avaliable = true;
+    }
+
+    public boolean borrowBook() {
+        if (!avaliable) {
+            return false;
+        }
+        avaliable = false;
+        return true;
+    }
+
+    public boolean returnBook() {
+        if (avaliable) {
+            return false;
+        }
+        avaliable = true;
+        return true;
+    }
+
+    public String toString(int nameWidth, int authorWidth) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(name);
+
+        int n = nameWidth - name.length();
+        for(int i = 0; i < n; i++) {
+            sb.append(" ");
+        }
+        sb.append(author);
+        n = authorWidth - author.length();
+        for (int i = 0; i < n; i++) {
+            sb.append(" ");
+        }
+        sb.append(year);
+
+        return sb.toString();
+    }
+}
