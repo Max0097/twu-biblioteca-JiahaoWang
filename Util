@@ -1,0 +1,19 @@
+package com.dkfja.dfe;
+
+public class Util {
+    public static String getFormatLine(String a, String b, String c, int aWidth, int bWidth) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(a);
+        appendBlank(sb, aWidth - a.length());
+        sb.append(b);
+        appendBlank(sb, bWidth - b.length());
+        sb.append(c);
+        return sb.toString();
+    }
+
+    public static void appendBlank(StringBuffer sb, int num) {
+        for (int i = 0; i < num; i++) {
+            sb.append(" ");
+        }
+    }
+}
