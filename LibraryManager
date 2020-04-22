@@ -1,0 +1,142 @@
+package com.dkfja.dfe;
+import com.dkfja.dfe.Book;
+
+import java.util.Scanner;
+
+public class LibraryManager {
+
+    private static final String cmdShowList = "1";
+    private static final String cmdBorrow = "borrow ";
+    private static final String cmdReturn = "return ";
+    private static final String cmdQuit = "2";
+    private static final String cmdMainMenu = "main menu";
+
+    private Scanner mInputer;
+    private Book[] mBooks = {
+            new Book("Pride and prejudice", "Jane Austen", 1813),
+            new Book("Jane eyre", "Charlotte Brontë", 1847),
+            new Book("The Lady of the Camellias", "The Lady of the Camellias", 1848),
+            new Book("The Red and the Black", "Marie-Henri Beyle", 1830),
+            new Book("Le comte de Monte-Cristo", "Alexandre Dumas", 1844),
+    };
+
+    public LibraryManager() {
+        mInputer = new Scanner(System.in);
+    }
+
+    public void run() {
+        showWelcome();
+        showTip();
+        showMainMenu();
+        while(true) {
+            if (mInputer.hasNextLine()) {
+                String cmd = mInputer.nextLine();
+                if (cmdQuit.equals(cmd)) {
+                    break;
+                }
+                handleCommand(cmd);
+                showTip();
+                showHelp();
+            }
+        }
+        showFinished();
+        mInputer.close();
+    }
+
+    private void showHelp() {
+        System.out.println("You can input '" + cmdMainMenu + "' to return main menu");
+    }
+
+    private void showFinished() {
+        System.out.println("Bye.");
+    }
+
+    private void handleCommand(String cmd) {
+        switch(cmd) {
+            case cmdShowList:
+                showBookList();
+                break;
+            case cmdMainMenu:
+                showMainMenu();
+                break;
+            default:
+                if (cmd.startsWith(cmdBorrow)) {
+                    borrowBook(cmd.substring(cmdBorrow.length()));
+                } else if (cmd.startsWith(cmdReturn)){
+                    returnBook(cmd.substring(cmdReturn.length()));
+                } else {
+                    System.out.println("can not handle command " + cmd);
+                }
+                break;
+        }
+    }
+
+    private void returnBook(String bookName) {
+        boolean success = false;
+        for (Book book : mBooks) {
+            if (book.name.equals(bookName)) {
+                if (book.returnBook()) {
+                    System.out.println("Thank you for returning the book");
+                    success = true;
+                    break;
+                }
+            }
+        }
+        if (!success) {
+            System.out.println("That is not a valid book to return");
+        }
+    }
+
+    private void borrowBook(String bookName) {
+        boolean success = false;
+        for (Book book : mBooks) {
+            if (book.name.equals(bookName)) {
+                if (book.borrowBook()) {
+                    System.out.println("Thank you! Enjoy the book");
+                    success = true;
+                    break;
+                }
+            }
+        }
+        if (!success) {
+            System.out.println("Sorry, that book is not available");
+        }
+    }
+
+    private void showBookList() {
+        String titleName = "Book Name";
+        String titleAuthor = "Author";
+        String titleYear = "Year";
+        int nameMaxWidth = titleName.length();
+        int authorMaxWidth = titleAuthor.length();
+        for (Book book : mBooks) {
+            if (book.name.length() > nameMaxWidth) {
+                nameMaxWidth = book.name.length();
+            }
+            if (book.author.length() > authorMaxWidth) {
+                authorMaxWidth = book.author.length();
+            }
+        }
+        System.out.println(Util.getFormatLine(titleName, titleAuthor, titleYear, nameMaxWidth + 2, authorMaxWidth + 2));
+        for(Book book : mBooks) {
+            if (!book.avaliable){
+                continue;
+            }
+            System.out.println(book.toString(nameMaxWidth + 2, authorMaxWidth + 2));
+        }
+    }
+
+    private void showMainMenu() {
+        System.out.println("You can select an item to use Biblioteca.");
+        System.out.println("  " + cmdShowList + " show all books list.");
+        System.out.println("  " + cmdQuit + " to exit Biblioteca.");
+    }
+
+    private void showTip() {
+        System.out.println("You can use 'borrow XXX' or 'return XXX' to check out return a Book.");
+    }
+
+    private void showWelcome() {
+        System.out.println("Welcome to Biblioteca, Your one-stop-stop for great book titles in Biblioteca!");
+    }
+}
