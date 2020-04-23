@@ -1,0 +1,24 @@
+package com.dkfja.dfe;
+
+import java.util.ArrayList;
+
+public class UserData {
+    public String userName;
+    public String password;
+
+    String name;
+    String email;
+    String phoneNum;
+
+    public UserData(String userName, String password, String name, String email, String pn) {
+        this.userName = userName;
+        this.password = password;
+        this.name = name;
+        this.email = email;
+        this.phoneNum = pn;
+    }
+
+    public String getUserInfo() {
+        return "Name:" + name + " Email:" + email + " PhoneNum:" + phoneNum;
+    }
+}
