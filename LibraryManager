@@ -1,14 +1,21 @@
 package com.dkfja.dfe;
+
 import com.dkfja.dfe.Book;
+import com.dkfja.dfe.Movie;
+import com.dkfja.dfe.UserData;
+import com.dkfja.dfe.Util;
 
 import java.util.Scanner;
 
 public class LibraryManager {
 
-    private static final String cmdShowList = "1";
-    private static final String cmdBorrow = "borrow ";
-    private static final String cmdReturn = "return ";
-    private static final String cmdQuit = "2";
+    private static final String cmdShowBooks = "1";
+    private static final String cmdShowMovie = "2";
+    private static final String cmdQuit = "3";
+    private static final String cmdBorrowBook = "borrow book ";
+    private static final String cmdReturnBook = "return book ";
+    private static final String cmdBorrowMovie = "borrow movie ";
+    private static final String cmdReturnMovie = "return movie ";
     private static final String cmdMainMenu = "main menu";
 
     private Scanner mInputer;
@@ -20,27 +27,74 @@ public class LibraryManager {
             new Book("Le comte de Monte-Cristo", "Alexandre Dumas", 1844),
     };
 
+    private Movie[] mMovies = {
+            new Movie("Titanic", 1997, "James Cameron", 8),
+            new Movie("The Shawshank Redemption", 1994, "Frank Darabont", 9),
+            new Movie("The Godfather", 1972, "Francis Ford Coppola", 7),
+    };
+
+    private UserData[] mUsers = {
+            new UserData("111-1110", "123", "Jack", "abc@abc.com", "13911110000"),
+            new UserData("111-1111", "123", "Bob", "bob@163.com", "15800001111"),
+            new UserData("abc", "123", "Bob", "bob@163.com", "15800001111"),
+    };
+
+    private UserData currentUser = null;
+
     public LibraryManager() {
         mInputer = new Scanner(System.in);
     }
 
     public void run() {
         showWelcome();
-        showTip();
+        showLogin();
         showMainMenu();
-        while(true) {
+        while (true) {
             if (mInputer.hasNextLine()) {
                 String cmd = mInputer.nextLine();
                 if (cmdQuit.equals(cmd)) {
                     break;
                 }
                 handleCommand(cmd);
-                showTip();
                 showHelp();
             }
         }
         showFinished();
         mInputer.close();
+    }
+
+    private void showLogin() {
+        while (true) {
+            String userName = "";
+            String userPassword = "";
+            System.out.println("Please input your user name");
+            if (mInputer.hasNextLine()) {
+                userName = mInputer.nextLine();
+            }
+            System.out.println("Please input your password");
+            if (mInputer.hasNextLine()) {
+                userPassword = mInputer.nextLine();
+            }
+            currentUser = getUserLogin(userName, userPassword);
+            if (currentUser == null) {
+                System.out.println("Login faild.");
+            } else {
+                System.out.println("Login Success!");
+                System.out.println(currentUser.getUserInfo());
+                showBookTip();
+                showMovieTip();
+                break;
+            }
+        }
+    }
+
+    private UserData getUserLogin(String userName, String userPassword) {
+        for (UserData d : mUsers) {
+            if (d.userName.equals(userName) && d.password.equals(userPassword)) {
+                return d;
+            }
+        }
+        return null;
     }
 
     private void showHelp() {
@@ -52,22 +106,63 @@ public class LibraryManager {
     }
 
     private void handleCommand(String cmd) {
-        switch(cmd) {
-            case cmdShowList:
+        switch (cmd) {
+            case cmdShowBooks:
                 showBookList();
+                showBookTip();
+                break;
+            case cmdShowMovie:
+                showMovieList();
+                showMovieTip();
                 break;
             case cmdMainMenu:
                 showMainMenu();
                 break;
             default:
-                if (cmd.startsWith(cmdBorrow)) {
-                    borrowBook(cmd.substring(cmdBorrow.length()));
-                } else if (cmd.startsWith(cmdReturn)){
-                    returnBook(cmd.substring(cmdReturn.length()));
-                } else {
+                if (cmd.startsWith(cmdBorrowBook)) {
+                    borrowBook(cmd.substring(cmdBorrowBook.length()));
+                } else if (cmd.startsWith(cmdReturnBook)) {
+                    returnBook(cmd.substring(cmdReturnBook.length()));
+                } else if (cmd.startsWith(cmdBorrowMovie)) {
+                    borrowMovie(cmd.substring(cmdBorrowMovie.length()));
+                } else if (cmd.startsWith(cmdReturnMovie)) {
+                    returnMovie(cmd.substring(cmdReturnMovie.length()));
+                } else{
                     System.out.println("can not handle command " + cmd);
                 }
                 break;
+        }
+    }
+
+    private void returnMovie(String movieName) {
+        boolean success = false;
+        for (Movie movie : mMovies) {
+            if (movie.name.equals(movieName)) {
+                if (movie.returnMovie()) {
+                    System.out.println("Thank you for returning the movie");
+                    success = true;
+                    break;
+                }
+            }
+        }
+        if (!success) {
+            System.out.println("That is not a valid movie to return");
+        }
+    }
+
+    private void borrowMovie(String moveName) {
+        boolean success = false;
+        for (Movie movie : mMovies) {
+            if (movie.name.equals(moveName)) {
+                if (movie.borrowMovie()) {
+                    System.out.println("Thank you! Enjoy the movie");
+                    success = true;
+                    break;
+                }
+            }
+        }
+        if (!success) {
+            System.out.println("Sorry, that movie is not available");
         }
     }
 
@@ -118,22 +213,53 @@ public class LibraryManager {
             }
         }
         System.out.println(Util.getFormatLine(titleName, titleAuthor, titleYear, nameMaxWidth + 2, authorMaxWidth + 2));
-        for(Book book : mBooks) {
-            if (!book.avaliable){
+        for (Book book : mBooks) {
+            if (!book.avaliable) {
                 continue;
             }
             System.out.println(book.toString(nameMaxWidth + 2, authorMaxWidth + 2));
         }
     }
 
+    private void showMovieList() {
+        String titleName = "Movie Name";
+        String titleYear = "Year";
+        String titleDirector = "Director";
+        String titleRating = "Rating";
+        int nameMaxWidth = titleName.length();
+        int yearMaxWidth = 6;
+        int directorMaxWidth = titleDirector.length();
+        for (Movie movie : mMovies) {
+            if (movie.name.length() > nameMaxWidth) {
+                nameMaxWidth = movie.name.length();
+            }
+            if (movie.director.length() > directorMaxWidth) {
+                directorMaxWidth = movie.director.length();
+            }
+        }
+        nameMaxWidth += 2;
+        directorMaxWidth += 2;
+        System.out.println(Util.getFormatLine(titleName, titleYear, titleDirector, titleRating, nameMaxWidth, yearMaxWidth, directorMaxWidth));
+        for (Movie movie : mMovies) {
+            if (!movie.avaliable) {
+                continue;
+            }
+            System.out.println(movie.toString(nameMaxWidth, yearMaxWidth, directorMaxWidth));
+        }
+    }
+
     private void showMainMenu() {
         System.out.println("You can select an item to use Biblioteca.");
-        System.out.println("  " + cmdShowList + " show all books list.");
+        System.out.println("  " + cmdShowBooks + " show all books list.");
+        System.out.println("  " + cmdShowMovie + " show all movie list.");
         System.out.println("  " + cmdQuit + " to exit Biblioteca.");
     }
 
-    private void showTip() {
-        System.out.println("You can use 'borrow XXX' or 'return XXX' to check out return a Book.");
+    private void showBookTip() {
+        System.out.println("You can use 'borrow book XXX' or 'return book XXX' to check out return a Book.");
+    }
+    private void showMovieTip() {
+        System.out.println("You can use 'borrow movie XXX' or 'return movie XXX' to check out return a Movie.");
     }
 
     private void showWelcome() {
