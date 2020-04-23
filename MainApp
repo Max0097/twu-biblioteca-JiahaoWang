@@ -1,8 +1,12 @@
 package com.dkfja.dfe;
 
+import com.dkfja.dfe.*;
+import com.dkfja.dfe.LibraryManager;
+
 public class MainApp {
     public static void main(String[] args) {
         LibraryManager manager = new LibraryManager();
         manager.run();
     }
+}
 }
